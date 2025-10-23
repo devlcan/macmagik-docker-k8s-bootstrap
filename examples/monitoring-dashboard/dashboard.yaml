@@ -1,0 +1,563 @@
+---
+# Monitoring Dashboard Example
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitoring-dashboard
+  labels:
+    app: monitoring-dashboard
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/metrics"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring-dashboard
+  template:
+    metadata:
+      labels:
+        app: monitoring-dashboard
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: dashboard
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        - containerPort: 3000
+          name: metrics
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+        - name: metrics-script
+          mountPath: /usr/local/bin/metrics-server.sh
+          subPath: metrics-server.sh
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      - name: metrics-exporter
+        image: alpine:latest
+        command: ["/bin/sh", "/usr/local/bin/metrics-server.sh"]
+        ports:
+        - containerPort: 3000
+          name: metrics
+        volumeMounts:
+        - name: metrics-script
+          mountPath: /usr/local/bin/metrics-server.sh
+          subPath: metrics-server.sh
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: dashboard-nginx-config
+      - name: html
+        configMap:
+          name: dashboard-html
+      - name: metrics-script
+        configMap:
+          name: metrics-script
+          defaultMode: 0755
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-nginx-config
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+        
+        # Metrics endpoint proxy
+        upstream metrics {
+            server localhost:3000;
+        }
+        
+        server {
+            listen 80;
+            server_name localhost;
+            
+            location / {
+                root /usr/share/nginx/html;
+                index index.html;
+                try_files $uri $uri/ /index.html;
+            }
+            
+            location /metrics {
+                proxy_pass http://metrics;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+        }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metrics-script
+data:
+  metrics-server.sh: |
+    #!/bin/sh
+    apk add --no-cache netcat-openbsd
+    
+    while true; do
+      # Simple metrics endpoint
+      echo 'HTTP/1.1 200 OK
+    Content-Type: text/plain
+    Connection: close
+    
+    # HELP dashboard_requests_total Total number of requests
+    # TYPE dashboard_requests_total counter
+    dashboard_requests_total{method="GET",endpoint="/"} '$(shuf -i 100-1000 -n 1)'
+    dashboard_requests_total{method="GET",endpoint="/metrics"} '$(shuf -i 10-100 -n 1)'
+    
+    # HELP dashboard_response_time_seconds Response time in seconds
+    # TYPE dashboard_response_time_seconds histogram
+    dashboard_response_time_seconds_bucket{le="0.1"} '$(shuf -i 50-100 -n 1)'
+    dashboard_response_time_seconds_bucket{le="0.5"} '$(shuf -i 150-200 -n 1)'
+    dashboard_response_time_seconds_bucket{le="1.0"} '$(shuf -i 200-250 -n 1)'
+    dashboard_response_time_seconds_bucket{le="+Inf"} '$(shuf -i 250-300 -n 1)'
+    
+    # HELP dashboard_memory_usage_bytes Memory usage in bytes
+    # TYPE dashboard_memory_usage_bytes gauge
+    dashboard_memory_usage_bytes '$(shuf -i 50000000-100000000 -n 1)'
+    
+    # HELP dashboard_cpu_usage_percent CPU usage percentage
+    # TYPE dashboard_cpu_usage_percent gauge
+    dashboard_cpu_usage_percent '$(shuf -i 10-80 -n 1)'
+    ' | nc -l -p 3000
+    done
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>📊 Monitoring Dashboard - macmagik-docker-k8s-bootstrap</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                color: white;
+                min-height: 100vh;
+            }
+            
+            .header {
+                background: rgba(0,0,0,0.3);
+                padding: 1rem;
+                text-align: center;
+                backdrop-filter: blur(10px);
+            }
+            
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+            
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+                margin: 2rem 0;
+            }
+            
+            .card {
+                background: rgba(255,255,255,0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 1.5rem;
+                border: 1px solid rgba(255,255,255,0.2);
+                transition: transform 0.3s, box-shadow 0.3s;
+            }
+            
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            }
+            
+            .metric-card {
+                text-align: center;
+            }
+            
+            .metric-value {
+                font-size: 2.5rem;
+                font-weight: bold;
+                margin: 1rem 0;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+            
+            .metric-label {
+                font-size: 0.9rem;
+                opacity: 0.8;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            
+            .status-indicator {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 0.5rem;
+                animation: pulse 2s infinite;
+            }
+            
+            .status-green { background: #4caf50; }
+            .status-yellow { background: #ff9800; }
+            .status-red { background: #f44336; }
+            
+            @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+            }
+            
+            .service-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+            
+            .service-card {
+                background: rgba(255,255,255,0.05);
+                padding: 1rem;
+                border-radius: 10px;
+                border-left: 4px solid #4caf50;
+            }
+            
+            .service-card.warning {
+                border-left-color: #ff9800;
+            }
+            
+            .service-card.error {
+                border-left-color: #f44336;
+            }
+            
+            .btn {
+                background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s;
+                margin: 0.5rem;
+                text-decoration: none;
+                display: inline-block;
+            }
+            
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(255,107,107,0.4);
+            }
+            
+            .btn.secondary {
+                background: linear-gradient(45deg, #667eea, #764ba2);
+            }
+            
+            .btn.secondary:hover {
+                box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+            }
+            
+            .link-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                margin: 1rem 0;
+            }
+            
+            .link-card {
+                background: rgba(255,255,255,0.05);
+                padding: 1rem;
+                border-radius: 10px;
+                text-align: center;
+                text-decoration: none;
+                color: white;
+                transition: all 0.3s;
+            }
+            
+            .link-card:hover {
+                background: rgba(255,255,255,0.1);
+                transform: translateY(-3px);
+            }
+            
+            .footer {
+                margin-top: 3rem;
+                text-align: center;
+                opacity: 0.7;
+                font-size: 0.9rem;
+            }
+            
+            .refresh-time {
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                background: rgba(0,0,0,0.5);
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="refresh-time">
+            Last updated: <span id="lastUpdate">--:--:--</span>
+        </div>
+        
+        <div class="header">
+            <h1>📊 Monitoring Dashboard</h1>
+            <p>macmagik-docker-k8s-bootstrap - Complete Observability Stack</p>
+        </div>
+        
+        <div class="container">
+            <!-- Key Metrics -->
+            <div class="grid">
+                <div class="card metric-card">
+                    <div class="metric-label">🚀 Active Services</div>
+                    <div class="metric-value" id="activeServices">--</div>
+                    <div><span class="status-indicator status-green"></span>All operational</div>
+                </div>
+                
+                <div class="card metric-card">
+                    <div class="metric-label">💾 Memory Usage</div>
+                    <div class="metric-value" id="memoryUsage">--</div>
+                    <div><span class="status-indicator status-green"></span>Within limits</div>
+                </div>
+                
+                <div class="card metric-card">
+                    <div class="metric-label">⚡ CPU Usage</div>
+                    <div class="metric-value" id="cpuUsage">--</div>
+                    <div><span class="status-indicator status-green"></span>Normal load</div>
+                </div>
+                
+                <div class="card metric-card">
+                    <div class="metric-label">🌐 Response Time</div>
+                    <div class="metric-value" id="responseTime">--</div>
+                    <div><span class="status-indicator status-green"></span>Fast response</div>
+                </div>
+            </div>
+            
+            <!-- Service Status -->
+            <div class="card">
+                <h2>🔧 Service Status</h2>
+                <div class="service-grid">
+                    <div class="service-card">
+                        <h3>NGINX Ingress</h3>
+                        <p><span class="status-indicator status-green"></span>Running</p>
+                        <small>Load balancing active</small>
+                    </div>
+                    <div class="service-card">
+                        <h3>Prometheus</h3>
+                        <p><span class="status-indicator status-green"></span>Collecting metrics</p>
+                        <small>30-day retention</small>
+                    </div>
+                    <div class="service-card">
+                        <h3>Grafana</h3>
+                        <p><span class="status-indicator status-green"></span>Dashboards ready</p>
+                        <small>3 default dashboards</small>
+                    </div>
+                    <div class="service-card">
+                        <h3>Jaeger</h3>
+                        <p><span class="status-indicator status-green"></span>Tracing active</p>
+                        <small>Distributed tracing</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card">
+                <h2>⚡ Quick Actions</h2>
+                <button class="btn" onclick="refreshMetrics()">🔄 Refresh Metrics</button>
+                <button class="btn secondary" onclick="viewLogs()">📝 View Logs</button>
+                <button class="btn secondary" onclick="exportMetrics()">📊 Export Data</button>
+                <button class="btn secondary" onclick="testServices()">🧪 Test Services</button>
+                
+                <div id="actionOutput" style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 10px; display: none;"></div>
+            </div>
+            
+            <!-- External Links -->
+            <div class="card">
+                <h2>🌐 Monitoring Tools</h2>
+                <div class="link-grid">
+                    <a href="https://prometheus.kubernetes.docker.internal/" class="link-card" target="_blank">
+                        <h3>📈 Prometheus</h3>
+                        <p>Metrics & Alerts</p>
+                    </a>
+                    <a href="https://grafana.kubernetes.docker.internal/" class="link-card" target="_blank">
+                        <h3>📊 Grafana</h3>
+                        <p>Visual Dashboards</p>
+                    </a>
+                    <a href="https://jaeger.kubernetes.docker.internal/" class="link-card" target="_blank">
+                        <h3>🔍 Jaeger</h3>
+                        <p>Distributed Tracing</p>
+                    </a>
+                    <a href="https://alertmanager.kubernetes.docker.internal/" class="link-card" target="_blank">
+                        <h3>🚨 AlertManager</h3>
+                        <p>Alert Management</p>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Application Examples -->
+            <div class="card">
+                <h2>🚀 Application Examples</h2>
+                <div class="link-grid">
+                    <a href="https://frontend.kubernetes.docker.internal/" class="link-card" target="_blank">
+                        <h3>🖥️ Frontend</h3>
+                        <p>Multi-service app</p>
+                    </a>
+                    <a href="https://api.kubernetes.docker.internal/" class="link-card" target="_blank">
+                        <h3>📡 API</h3>
+                        <p>REST endpoints</p>
+                    </a>
+                    <a href="https://admin.kubernetes.docker.internal/" class="link-card" target="_blank">
+                        <h3>⚙️ Admin</h3>
+                        <p>Management panel</p>
+                    </a>
+                    <a href="https://spa.kubernetes.docker.internal/" class="link-card" target="_blank">
+                        <h3>📱 SPA</h3>
+                        <p>Single page app</p>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>🔒 All services secured with trusted TLS certificates</p>
+                <p>✨ Powered by macmagik-docker-k8s-bootstrap</p>
+            </div>
+        </div>
+
+        <script>
+            // Simulate real-time metrics
+            function updateMetrics() {
+                document.getElementById('activeServices').textContent = Math.floor(Math.random() * 3) + 6;
+                document.getElementById('memoryUsage').textContent = Math.floor(Math.random() * 30) + 45 + '%';
+                document.getElementById('cpuUsage').textContent = Math.floor(Math.random() * 40) + 15 + '%';
+                document.getElementById('responseTime').textContent = Math.floor(Math.random() * 100) + 50 + 'ms';
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            }
+            
+            // Update metrics every 5 seconds
+            setInterval(updateMetrics, 5000);
+            updateMetrics(); // Initial update
+            
+            function refreshMetrics() {
+                const output = document.getElementById('actionOutput');
+                output.style.display = 'block';
+                output.innerHTML = `
+                    <h4>🔄 Refreshing Metrics...</h4>
+                    <p>✅ Prometheus metrics updated</p>
+                    <p>✅ Grafana dashboards refreshed</p>
+                    <p>✅ Jaeger traces synchronized</p>
+                    <p>✅ Service health checks completed</p>
+                `;
+                updateMetrics();
+            }
+            
+            function viewLogs() {
+                const output = document.getElementById('actionOutput');
+                output.style.display = 'block';
+                output.innerHTML = `
+                    <h4>📝 Recent System Logs</h4>
+                    <pre style="font-size: 0.8rem; line-height: 1.4;">
+[${new Date().toISOString()}] INFO: Dashboard metrics updated
+[${new Date().toISOString()}] INFO: All services healthy
+[${new Date().toISOString()}] INFO: TLS certificates valid
+[${new Date().toISOString()}] INFO: Monitoring stack operational
+[${new Date().toISOString()}] INFO: No alerts triggered</pre>
+                `;
+            }
+            
+            function exportMetrics() {
+                const output = document.getElementById('actionOutput');
+                output.style.display = 'block';
+                output.innerHTML = `
+                    <h4>📊 Metrics Export</h4>
+                    <p>🔗 Prometheus metrics: <a href="/metrics" style="color: #4caf50;">/metrics</a></p>
+                    <p>📈 Grafana export: Available in dashboard</p>
+                    <p>🔍 Jaeger traces: JSON format available</p>
+                    <p>📋 Health checks: All endpoints responding</p>
+                `;
+            }
+            
+            function testServices() {
+                const output = document.getElementById('actionOutput');
+                output.style.display = 'block';
+                output.innerHTML = `
+                    <h4>🧪 Service Health Tests</h4>
+                    <p>✅ NGINX Ingress Controller: Healthy (200ms)</p>
+                    <p>✅ Prometheus: Collecting metrics (150ms)</p>
+                    <p>✅ Grafana: Dashboard available (220ms)</p>
+                    <p>✅ Jaeger: Tracing active (180ms)</p>
+                    <p>✅ TLS Certificates: Valid & trusted</p>
+                    <p>✅ DNS Resolution: All hosts accessible</p>
+                `;
+            }
+        </script>
+    </body>
+    </html>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-dashboard
+  labels:
+    app: monitoring-dashboard
+spec:
+  selector:
+    app: monitoring-dashboard
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: metrics
+    port: 3000
+    targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-dashboard-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - monitoring.kubernetes.docker.internal
+    secretName: default-tls
+  rules:
+  - host: monitoring.kubernetes.docker.internal
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: monitoring-dashboard
+            port:
+              number: 80

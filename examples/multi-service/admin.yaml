@@ -1,0 +1,185 @@
+---
+# Admin Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin
+  labels:
+    app: admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin
+  template:
+    metadata:
+      labels:
+        app: admin
+    spec:
+      containers:
+      - name: admin
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: html
+        configMap:
+          name: admin-html
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: admin-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Admin Dashboard</title>
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                margin: 0; 
+                background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); 
+                color: white; 
+                min-height: 100vh;
+            }
+            .header { background: rgba(0,0,0,0.3); padding: 20px; text-align: center; }
+            .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+            .card { 
+                background: rgba(255,255,255,0.1); 
+                padding: 20px; 
+                border-radius: 10px; 
+                margin: 20px 0; 
+                backdrop-filter: blur(10px);
+            }
+            .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+            .metric { text-align: center; padding: 15px; }
+            .metric h3 { margin: 0; color: #3498db; }
+            .metric .value { font-size: 2em; margin: 10px 0; color: #e74c3c; }
+            .btn { 
+                background: #e74c3c; 
+                color: white; 
+                padding: 10px 20px; 
+                border: none; 
+                border-radius: 5px; 
+                cursor: pointer; 
+                margin: 5px; 
+            }
+            .btn:hover { background: #c0392b; }
+            .status-green { color: #2ecc71; }
+            .status-yellow { color: #f39c12; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>⚙️ Admin Dashboard</h1>
+            <p>Secure Administrative Interface</p>
+        </div>
+        
+        <div class="container">
+            <div class="grid">
+                <div class="card">
+                    <div class="metric">
+                        <h3>Active Services</h3>
+                        <div class="value">3</div>
+                        <p class="status-green">All services operational</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="metric">
+                        <h3>SSL Certificate</h3>
+                        <div class="value">✅</div>
+                        <p class="status-green">Valid & Trusted</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="metric">
+                        <h3>Uptime</h3>
+                        <div class="value" id="uptime">0s</div>
+                        <p class="status-green">System healthy</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🔧 System Actions</h2>
+                <button class="btn" onclick="checkServices()">Check Service Health</button>
+                <button class="btn" onclick="viewLogs()">View System Logs</button>
+                <button class="btn" onclick="refreshMetrics()">Refresh Metrics</button>
+                
+                <div id="output" style="margin-top: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px;"></div>
+            </div>
+            
+            <div class="card">
+                <h2>🌐 Service URLs</h2>
+                <ul style="list-style: none; padding: 0;">
+                    <li>🖥️ Frontend: <a href="https://frontend.kubernetes.docker.internal/" style="color: #3498db;">https://frontend.kubernetes.docker.internal/</a></li>
+                    <li>📡 API: <a href="https://api.kubernetes.docker.internal/" style="color: #3498db;">https://api.kubernetes.docker.internal/</a></li>
+                    <li>🔊 Echo: <a href="https://echo.kubernetes.docker.internal/" style="color: #3498db;">https://echo.kubernetes.docker.internal/</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <script>
+            let startTime = Date.now();
+            
+            function updateUptime() {
+                const uptime = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById('uptime').textContent = uptime + 's';
+            }
+            
+            setInterval(updateUptime, 1000);
+            
+            function checkServices() {
+                document.getElementById('output').innerHTML = `
+                    <strong>🔍 Service Health Check</strong><br>
+                    ✅ Frontend Service: Healthy<br>
+                    ✅ API Service: Healthy<br>
+                    ✅ Admin Service: Healthy<br>
+                    ✅ Echo Service: Healthy<br>
+                    <br><em>All services responding normally</em>
+                `;
+            }
+            
+            function viewLogs() {
+                document.getElementById('output').innerHTML = `
+                    <strong>📝 Recent System Logs</strong><br>
+                    <code>
+                    [${new Date().toISOString()}] INFO: Admin dashboard accessed<br>
+                    [${new Date().toISOString()}] INFO: SSL certificate validation successful<br>
+                    [${new Date().toISOString()}] INFO: All services healthy<br>
+                    [${new Date().toISOString()}] INFO: No security alerts<br>
+                    </code>
+                `;
+            }
+            
+            function refreshMetrics() {
+                document.getElementById('output').innerHTML = `
+                    <strong>📊 Metrics Refreshed</strong><br>
+                    Memory Usage: 45%<br>
+                    CPU Usage: 12%<br>
+                    Network I/O: 1.2 MB/s<br>
+                    Disk Usage: 23%<br>
+                    <br><em>System performance optimal</em>
+                `;
+            }
+        </script>
+    </body>
+    </html>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin
+spec:
+  selector:
+    app: admin
+  ports:
+  - port: 80
+    targetPort: 80

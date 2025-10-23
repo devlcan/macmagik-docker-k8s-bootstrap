@@ -1,0 +1,494 @@
+---
+# Single Page Application Example
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spa-app
+  labels:
+    app: spa-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spa-app
+  template:
+    metadata:
+      labels:
+        app: spa-app
+    spec:
+      containers:
+      - name: spa-app
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: html
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: spa-nginx-config
+      - name: html
+        configMap:
+          name: spa-html
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spa-nginx-config
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+        
+        server {
+            listen 80;
+            server_name localhost;
+            root /usr/share/nginx/html;
+            index index.html;
+            
+            # Handle client-side routing
+            location / {
+                try_files $uri $uri/ /index.html;
+            }
+            
+            # API proxy (if needed)
+            location /api/ {
+                proxy_pass http://api-backend:3000/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+            
+            # Static assets caching
+            location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+                expires 1y;
+                add_header Cache-Control "public, immutable";
+            }
+        }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spa-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SPA Demo - React Style App</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+            }
+            
+            .app { min-height: 100vh; display: flex; flex-direction: column; }
+            
+            .header {
+                background: rgba(255,255,255,0.1);
+                backdrop-filter: blur(10px);
+                padding: 1rem;
+                box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            }
+            
+            .nav {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+            }
+            
+            .nav h1 {
+                color: white;
+                margin-right: 2rem;
+            }
+            
+            .nav-btn {
+                background: rgba(255,255,255,0.2);
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+            
+            .nav-btn:hover, .nav-btn.active {
+                background: rgba(255,255,255,0.3);
+                transform: translateY(-2px);
+            }
+            
+            .main {
+                flex: 1;
+                padding: 2rem;
+                color: white;
+            }
+            
+            .page {
+                display: none;
+                animation: fadeIn 0.5s;
+            }
+            
+            .page.active {
+                display: block;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .card {
+                background: rgba(255,255,255,0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 10px;
+                padding: 2rem;
+                margin: 1rem 0;
+                border: 1px solid rgba(255,255,255,0.2);
+            }
+            
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1rem;
+                margin: 2rem 0;
+            }
+            
+            .feature {
+                text-align: center;
+                padding: 1rem;
+            }
+            
+            .feature h3 {
+                margin-bottom: 0.5rem;
+                color: #ffd700;
+            }
+            
+            .btn {
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.3s;
+                margin: 0.5rem;
+            }
+            
+            .btn:hover {
+                background: #ff5252;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
+            
+            .status {
+                display: inline-block;
+                padding: 0.25rem 0.5rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: bold;
+            }
+            
+            .status.online {
+                background: #4caf50;
+                color: white;
+            }
+            
+            .status.secure {
+                background: #2196f3;
+                color: white;
+            }
+            
+            .footer {
+                background: rgba(0,0,0,0.2);
+                padding: 1rem;
+                text-align: center;
+                color: rgba(255,255,255,0.7);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <header class="header">
+                <nav class="nav">
+                    <h1>🚀 SPA Demo</h1>
+                    <button class="nav-btn active" onclick="showPage('home')">Home</button>
+                    <button class="nav-btn" onclick="showPage('features')">Features</button>
+                    <button class="nav-btn" onclick="showPage('api')">API Test</button>
+                    <button class="nav-btn" onclick="showPage('about')">About</button>
+                </nav>
+            </header>
+            
+            <main class="main">
+                <!-- Home Page -->
+                <div id="home" class="page active">
+                    <div class="card">
+                        <h2>Welcome to the SPA Demo</h2>
+                        <p>This is a Single Page Application running on Kubernetes with trusted TLS certificates.</p>
+                        
+                        <div class="grid">
+                            <div class="feature">
+                                <h3>🔒 Secure HTTPS</h3>
+                                <p>Trusted TLS certificate</p>
+                                <span class="status secure">SECURE</span>
+                            </div>
+                            <div class="feature">
+                                <h3>⚡ Fast Loading</h3>
+                                <p>Optimized static assets</p>
+                                <span class="status online">ONLINE</span>
+                            </div>
+                            <div class="feature">
+                                <h3>📱 Responsive</h3>
+                                <p>Works on all devices</p>
+                                <span class="status online">READY</span>
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="showPage('features')">Explore Features</button>
+                    </div>
+                </div>
+                
+                <!-- Features Page -->
+                <div id="features" class="page">
+                    <div class="card">
+                        <h2>✨ Application Features</h2>
+                        
+                        <h3>🏗️ Architecture</h3>
+                        <ul style="margin: 1rem 0;">
+                            <li>Client-side routing with history API</li>
+                            <li>NGINX configuration for SPA support</li>
+                            <li>Kubernetes deployment with ConfigMaps</li>
+                            <li>Ingress controller with TLS termination</li>
+                        </ul>
+                        
+                        <h3>🛡️ Security</h3>
+                        <ul style="margin: 1rem 0;">
+                            <li>Wildcard TLS certificate (*.kubernetes.docker.internal)</li>
+                            <li>Automatic HTTPS redirect</li>
+                            <li>Secure headers configuration</li>
+                            <li>Content Security Policy ready</li>
+                        </ul>
+                        
+                        <h3>⚡ Performance</h3>
+                        <ul style="margin: 1rem 0;">
+                            <li>Static asset caching (1 year expiry)</li>
+                            <li>Gzip compression enabled</li>
+                            <li>CDN-ready configuration</li>
+                            <li>Optimized bundle size</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- API Test Page -->
+                <div id="api" class="page">
+                    <div class="card">
+                        <h2>🔌 API Integration Test</h2>
+                        <p>Test API connectivity and responses:</p>
+                        
+                        <button class="btn" onclick="testAPI('local')">Test Local API</button>
+                        <button class="btn" onclick="testAPI('external')">Test External API</button>
+                        <button class="btn" onclick="clearResults()">Clear Results</button>
+                        
+                        <div id="api-results" style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 5px; min-height: 100px;">
+                            <p>Click a button above to test API connectivity...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- About Page -->
+                <div id="about" class="page">
+                    <div class="card">
+                        <h2>ℹ️ About This Demo</h2>
+                        
+                        <h3>🎯 Purpose</h3>
+                        <p>This SPA demonstrates how to deploy modern web applications on Kubernetes with:</p>
+                        <ul style="margin: 1rem 0;">
+                            <li>Trusted TLS certificates for local development</li>
+                            <li>Client-side routing support</li>
+                            <li>Production-ready NGINX configuration</li>
+                            <li>Kubernetes-native deployment patterns</li>
+                        </ul>
+                        
+                        <h3>🔧 Technology Stack</h3>
+                        <ul style="margin: 1rem 0;">
+                            <li><strong>Frontend:</strong> Vanilla HTML/CSS/JS (simulating React/Vue patterns)</li>
+                            <li><strong>Server:</strong> NGINX with SPA routing configuration</li>
+                            <li><strong>Container:</strong> Alpine Linux for minimal footprint</li>
+                            <li><strong>Orchestration:</strong> Kubernetes with Ingress controller</li>
+                        </ul>
+                        
+                        <h3>🌐 URLs</h3>
+                        <ul style="margin: 1rem 0;">
+                            <li>🏠 SPA App: <a href="https://spa.kubernetes.docker.internal/" style="color: #ffd700;">https://spa.kubernetes.docker.internal/</a></li>
+                            <li>🖥️ Frontend: <a href="https://frontend.kubernetes.docker.internal/" style="color: #ffd700;">https://frontend.kubernetes.docker.internal/</a></li>
+                            <li>📡 API: <a href="https://api.kubernetes.docker.internal/" style="color: #ffd700;">https://api.kubernetes.docker.internal/</a></li>
+                        </ul>
+                        
+                        <h3>📚 Learn More</h3>
+                        <p>This example is part of the <strong>k8s-local-dev-magic</strong> repository.</p>
+                        <button class="btn" onclick="window.open('https://github.com/your-username/k8s-local-dev-magic', '_blank')">View on GitHub</button>
+                    </div>
+                </div>
+            </main>
+            
+            <footer class="footer">
+                <p>🚀 Powered by Kubernetes • 🔒 Secured with TLS • ⚡ Built for Speed</p>
+            </footer>
+        </div>
+
+        <script>
+            // Simple SPA routing
+            function showPage(pageId) {
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                // Remove active from nav buttons
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Show selected page
+                document.getElementById(pageId).classList.add('active');
+                
+                // Activate corresponding nav button
+                event.target.classList.add('active');
+                
+                // Update URL (optional - simulates client-side routing)
+                if (history.pushState) {
+                    const newURL = window.location.protocol + "//" + window.location.host + window.location.pathname + '#' + pageId;
+                    history.pushState({path: newURL}, '', newURL);
+                }
+            }
+            
+            // Handle browser back/forward
+            window.addEventListener('popstate', function(event) {
+                const hash = window.location.hash.substring(1);
+                if (hash && document.getElementById(hash)) {
+                    showPage(hash);
+                }
+            });
+            
+            // API testing functions
+            function testAPI(type) {
+                const resultsDiv = document.getElementById('api-results');
+                
+                if (type === 'local') {
+                    resultsDiv.innerHTML = `
+                        <h4>🔄 Testing Local API...</h4>
+                        <p>Attempting to connect to: <code>https://api.kubernetes.docker.internal/</code></p>
+                    `;
+                    
+                    // Simulate API call
+                    fetch('https://api.kubernetes.docker.internal/')
+                        .then(response => response.text())
+                        .then(data => {
+                            resultsDiv.innerHTML = `
+                                <h4>✅ Local API Test Successful</h4>
+                                <p><strong>Status:</strong> 200 OK</p>
+                                <p><strong>Response:</strong></p>
+                                <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 3px; overflow-x: auto;">${data.substring(0, 200)}...</pre>
+                            `;
+                        })
+                        .catch(error => {
+                            resultsDiv.innerHTML = `
+                                <h4>❌ Local API Test Failed</h4>
+                                <p><strong>Error:</strong> ${error.message}</p>
+                                <p><strong>Possible causes:</strong></p>
+                                <ul>
+                                    <li>API service not deployed</li>
+                                    <li>Ingress configuration issue</li>
+                                    <li>Network connectivity problem</li>
+                                </ul>
+                            `;
+                        });
+                        
+                } else if (type === 'external') {
+                    resultsDiv.innerHTML = `
+                        <h4>🔄 Testing External API...</h4>
+                        <p>Attempting to connect to: <code>https://httpbin.org/json</code></p>
+                    `;
+                    
+                    fetch('https://httpbin.org/json')
+                        .then(response => response.json())
+                        .then(data => {
+                            resultsDiv.innerHTML = `
+                                <h4>✅ External API Test Successful</h4>  
+                                <p><strong>Status:</strong> 200 OK</p>
+                                <p><strong>Response Data:</strong></p>
+                                <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 3px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
+                            `;
+                        })
+                        .catch(error => {
+                            resultsDiv.innerHTML = `
+                                <h4>❌ External API Test Failed</h4>
+                                <p><strong>Error:</strong> ${error.message}</p>
+                                <p>This might be due to CORS policy or network restrictions.</p>
+                            `;
+                        });
+                }
+            }
+            
+            function clearResults() {
+                document.getElementById('api-results').innerHTML = '<p>Click a button above to test API connectivity...</p>';
+            }
+            
+            // Initialize based on URL hash
+            window.addEventListener('load', function() {
+                const hash = window.location.hash.substring(1);
+                if (hash && document.getElementById(hash)) {
+                    showPage(hash);
+                }
+            });
+        </script>
+    </body>
+    </html>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spa-app
+spec:
+  selector:
+    app: spa-app
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spa-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - spa.kubernetes.docker.internal
+    secretName: default-tls
+  rules:
+  - host: spa.kubernetes.docker.internal
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: spa-app
+            port:
+              number: 80
