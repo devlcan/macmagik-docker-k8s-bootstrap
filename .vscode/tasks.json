@@ -1,0 +1,199 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Lint Shell Scripts",
+            "type": "shell",
+            "command": "shellcheck",
+            "args": [
+                "*.sh",
+                "scripts/*.sh"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": {
+                "owner": "shellcheck",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^In (.+) line (\\d+):\\n(.*)\\n\\s*(.*)\\s--\\s(SC\\d+)\\s\\((\\w+)\\):\\s(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "message": 7,
+                    "severity": 6
+                }
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Lint Specific Shell Script",
+            "type": "shell",
+            "command": "shellcheck",
+            "args": [
+                "${file}"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": {
+                "owner": "shellcheck",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}"
+                ],
+                "pattern": {
+                    "regexp": "^In (.+) line (\\d+):\\n(.*)\\n\\s*(.*)\\s--\\s(SC\\d+)\\s\\((\\w+)\\):\\s(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "message": 7,
+                    "severity": 6
+                }
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Setup Kubernetes Environment",
+            "type": "shell",
+            "command": "./setup-ingress.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Lint Shell Scripts"
+        },
+        {
+            "label": "Cleanup Kubernetes Environment",
+            "type": "shell",
+            "command": "./cleanup-ingress.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Verify Setup",
+            "type": "shell",
+            "command": "./verify-setup.sh",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Recovery Mode",
+            "type": "shell",
+            "command": "./recovery.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Install Prometheus Only",
+            "type": "shell",
+            "command": "./scripts/install-prometheus.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Install Jaeger Only",
+            "type": "shell",
+            "command": "./scripts/install-jaeger.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Full Development Workflow",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Lint Shell Scripts",
+                "Cleanup Kubernetes Environment",
+                "Setup Kubernetes Environment",
+                "Verify Setup"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        }
+    ]
+}

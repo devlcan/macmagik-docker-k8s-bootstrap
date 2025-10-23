@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Setup Kubernetes Environment",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/setup-ingress.sh",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Verify Setup",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/verify-setup.sh",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        }
+    ]
+}

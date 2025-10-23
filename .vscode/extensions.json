@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "ms-vscode.vscode-yaml",
+        "redhat.vscode-yaml",
+        "timonwong.shellcheck",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "ms-vscode.makefile-tools",
+        "bierner.markdown-preview-github-styles",
+        "DavidAnson.vscode-markdownlint",
+        "github.vscode-pull-request-github"
+    ]
+}

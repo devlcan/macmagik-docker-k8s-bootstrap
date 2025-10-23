@@ -1,0 +1,57 @@
+{
+    // Shell script settings
+    "shellcheck.enable": true,
+    "shellcheck.executablePath": "/opt/homebrew/bin/shellcheck",
+    "shellcheck.run": "onType",
+    "shellcheck.exclude": [],
+    "shellcheck.customArgs": [],
+    // YAML settings
+    "yaml.validate": true,
+    "yaml.hover": true,
+    "yaml.completion": true,
+    "yaml.format.enable": true,
+    "yaml.schemas": {
+        "kubernetes": [
+            "*.yaml",
+            "*.yml"
+        ]
+    },
+    // Markdown settings
+    "markdown.preview.breaks": true,
+    "markdown.preview.linkify": true,
+    // File associations
+    "files.associations": {
+        "*.sh": "shellscript",
+        "*.yaml": "yaml",
+        "*.yml": "yaml",
+        "Dockerfile*": "dockerfile",
+        "*.md": "markdown"
+    },
+    // Auto-formatting
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit"
+    },
+    // Terminal settings
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    // Git settings
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    // Search settings
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/.git": true,
+        "**/coverage": true,
+        "**/build": true,
+        "**/dist": true
+    },
+    // File watching
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/coverage/**": true
+    }
+}
